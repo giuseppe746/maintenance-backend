@@ -1,112 +1,43 @@
 const express = require('express');
-const multer = require('multer');
 const cors = require('cors');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
 
-// Percorso immagini archiviate
-const uploadDir = path.join(__dirname, 'foto-archivio');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-  console.log('📁 Cartella "foto-archivio" creata');
-}
+// Percorsi ai file
+const utentiFile = path.join(__dirname, 'utenti.json');
+const luoghiFile = path.join(__dirname, 'luoghi.json');
 
-// Percorso dati utenti (assoluto per evitare problemi)
-const utentiFile = 'F:/Progetto Definitivo/maintenance/Server/utenti.json';
+// Se i file non esistono, li crea
 if (!fs.existsSync(utentiFile)) {
   fs.writeFileSync(utentiFile, '[]', 'utf8');
-  console.log('✅ File utenti.json creato.');
+}
+if (!fs.existsSync(luoghiFile)) {
+  fs.writeFileSync(luoghiFile, '[]', 'utf8');
 }
 
-// Espone immagini archiviate
-app.use('/foto-archivio', express.static(uploadDir));
-app.use('/archivio', express.static(uploadDir));
-
-// Upload immagini
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const nome = `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
-    cb(null, nome);
-  }
-});
-const upload = multer({ storage });
-
-app.post('/upload', upload.single('foto'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Nessun file ricevuto' });
-  const url = `http://localhost:${PORT}/foto-archivio/${req.file.filename}`;
-  res.json({ file: req.file.filename, url });
-});
-
-// Lista immagini archiviate
-app.get('/api/lista-immagini', (req, res) => {
-  fs.readdir(uploadDir, (err, files) => {
-    if (err) return res.status(500).json({ error: 'Errore lettura archivio' });
-    const immagini = files.filter(f => /\.(jpg|jpeg|png|gif)$/i.test(f));
-    res.json(immagini);
-  });
-});
-
-// 🔹 API GESTIONE UTENTI
+// 🔹 GET /utenti - restituisce tutti gli utenti
 app.get('/utenti', (req, res) => {
-  console.log('📥 Richiesta GET /utenti');
   try {
     const data = fs.readFileSync(utentiFile, 'utf8');
     const utenti = JSON.parse(data || '[]');
     res.json(utenti);
-  } catch (err) {
-    console.error('❌ Errore lettura utenti:', err);
-    res.status(500).json({ error: 'Errore lettura utenti' });
+  } catch (error) {
+    console.error('Errore nella lettura di utenti.json:', error);
+    res.status(500).json({ error: 'Errore nella lettura del file utenti' });
   }
 });
 
+// 🔹 POST /utenti - sovrascrive l'elenco utenti
 app.post('/utenti', (req, res) => {
   const utenti = req.body;
-  console.log('📤 Ricevuti utenti da salvare:', utenti);
-  console.log('📁 Scrittura in:', utentiFile);
-
   try {
     fs.writeFileSync(utentiFile, JSON.stringify(utenti, null, 2), 'utf8');
-    console.log('✅ Scrittura completata con successo!');
-    res.json({ message: 'Utenti salvati' });
-  } catch (err) {
-    console.error('❌ Errore durante la scrittura:', err);
-    res.status(500).json({ error: 'Errore salvataggio utenti' });
-  }
-});
-
-// 🔧 Endpoint di test scrittura diretta
-app.get('/test-scrittura', (req, res) => {
-  const utentiFinti = [
-    {
-      nome: "Mario",
-      cognome: "Test",
-      username: "prova",
-      password: "123",
-      email: "test@example.com",
-      telefono: "1111111111",
-      ruolo: "Amministratore"
-    }
-  ];
-
-  try {
-    fs.writeFileSync(utentiFile, JSON.stringify(utentiFinti, null, 2), 'utf8');
-    console.log("✅ Scrittura diretta funzionante!");
-    res.json({ esito: "ok", utenti: utentiFinti });
-  } catch (err) {
-    console.error("❌ Fallimento scrittura:", err);
-    res.status(500).json({ esito: "errore", dettagli: err.message });
-  }
-});
-
-// Avvio server
-app.listen(PORT, () => {
-  console.log(`✅ Server avviato su http://localhost:${PORT}`);
-});
+    res.json({ message: 'Utenti salvati correttamente' });
+  } catch (error) {
+    console.error('

@@ -1,16 +1,40 @@
 import React, { useState, useEffect } from 'react';
 
 function Luoghi() {
-  const [luoghi, setLuoghi] = useState(() => JSON.parse(localStorage.getItem('luoghi')) || []);
+  const [luoghi, setLuoghi] = useState([]);
   const [nome, setNome] = useState('');
   const [indirizzo, setIndirizzo] = useState('');
+
+  useEffect(() => {
+    fetch("https://manutenzione-backend.onrender.com/luoghi")
+      .then(res => res.json())
+      .then(data => setLuoghi(data))
+      .catch(err => {
+        console.error("Errore nel caricamento luoghi:", err);
+        setLuoghi([]);
+      });
+  }, []);
+
+  const salvaLuoghiBackend = (nuoviLuoghi) => {
+    fetch("https://manutenzione-backend.onrender.com/luoghi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(nuoviLuoghi)
+    })
+      .then(res => res.json())
+      .then(() => setLuoghi(nuoviLuoghi))
+      .catch(err => {
+        console.error("Errore nel salvataggio luoghi:", err);
+      });
+  };
 
   const handleAggiungiLuogo = () => {
     if (nome.trim() !== '' && indirizzo.trim() !== '') {
       const nuovoLuogo = { nome, indirizzo };
       const nuoviLuoghi = [...luoghi, nuovoLuogo];
-      setLuoghi(nuoviLuoghi);
-      localStorage.setItem('luoghi', JSON.stringify(nuoviLuoghi));
+      salvaLuoghiBackend(nuoviLuoghi);
       setNome('');
       setIndirizzo('');
     }
@@ -18,8 +42,7 @@ function Luoghi() {
 
   const handleRimuoviLuogo = (nomeDaRimuovere) => {
     const aggiornati = luoghi.filter(l => l.nome !== nomeDaRimuovere);
-    setLuoghi(aggiornati);
-    localStorage.setItem('luoghi', JSON.stringify(aggiornati));
+    salvaLuoghiBackend(aggiornati);
   };
 
   return (
@@ -56,7 +79,14 @@ function Luoghi() {
             <strong>{luogo.nome}</strong> – {luogo.indirizzo}
             <button
               onClick={() => handleRimuoviLuogo(luogo.nome)}
-              style={{ marginLeft: '10px', backgroundColor: 'red', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px' }}
+              style={{
+                marginLeft: '10px',
+                backgroundColor: 'red',
+                color: 'white',
+                border: 'none',
+                padding: '5px 10px',
+                borderRadius: '4px'
+              }}
             >
               Rimuovi
             </button>

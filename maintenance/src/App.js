@@ -1,10 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
-import BackupAutomatico from "./components/BackupAutomatico"; // ✅ IMPORT AGGIUNTO
+import BackupAutomatico from "./components/BackupAutomatico";
+
 import Luoghi from './pages/Luoghi';
 import Dashboard from './pages/Dashboard';
 import ElencoInterventi from './pages/ElencoInterventi';
@@ -47,51 +48,96 @@ function AppContent() {
   const [utenti, setUtenti] = useState([]);
 
   useEffect(() => {
-    setInterventi(JSON.parse(localStorage.getItem("interventi")) || []);
-    setLuoghi(JSON.parse(localStorage.getItem("luoghi")) || []);
-    setUtenti(JSON.parse(localStorage.getItem("utenti")) || []);
+    fetch("https://manutenzione-backend.onrender.com/interventi")
+      .then(res => res.json())
+      .then(data => setInterventi(data))
+      .catch(err => {
+        console.error("Errore nel caricamento interventi:", err);
+        setInterventi([]);
+      });
+
+    fetch("https://manutenzione-backend.onrender.com/luoghi")
+      .then(res => res.json())
+      .then(data => setLuoghi(data))
+      .catch(err => {
+        console.error("Errore nel caricamento luoghi:", err);
+        setLuoghi([]);
+      });
+
+    fetch("https://manutenzione-backend.onrender.com/utenti")
+      .then(res => res.json())
+      .then(data => setUtenti(data))
+      .catch(err => {
+        console.error("Errore nel caricamento utenti:", err);
+        setUtenti([]);
+      });
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("interventi", JSON.stringify(interventi));
-  }, [interventi]);
-
-  useEffect(() => {
-    localStorage.setItem("luoghi", JSON.stringify(luoghi));
-  }, [luoghi]);
-
-  useEffect(() => {
-    localStorage.setItem("utenti", JSON.stringify(utenti));
-  }, [utenti]);
-
   const addIntervento = (nuovo) => {
-    setInterventi(prev => [...prev, nuovo]);
+    fetch("https://manutenzione-backend.onrender.com/interventi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(nuovo)
+    })
+      .then(res => res.json())
+      .then(() => setInterventi(prev => [...prev, nuovo]))
+      .catch(err => {
+        console.error("Errore nel salvataggio intervento:", err);
+      });
   };
 
   const updateIntervento = (index, updated) => {
-    setInterventi(prev => {
-      const aggiornati = [...prev];
-      aggiornati[index] = updated;
-      return aggiornati;
-    });
+    const nuovi = [...interventi];
+    nuovi[index] = updated;
+    setInterventi(nuovi);
+    // Se vuoi, puoi anche aggiornare sul backend
   };
 
   const removeIntervento = (index) => {
     setInterventi(prev => prev.filter((_, i) => i !== index));
+    // Potresti anche aggiungere DELETE su backend
   };
 
   const addLuogo = (nuovo) => {
-    setLuoghi(prev => [...prev, nuovo]);
+    const aggiornati = [...luoghi, nuovo];
+
+    fetch("https://manutenzione-backend.onrender.com/luoghi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(aggiornati)
+    })
+      .then(res => res.json())
+      .then(() => setLuoghi(aggiornati))
+      .catch(err => {
+        console.error("Errore nel salvataggio luoghi:", err);
+      });
   };
 
   const addUtente = (nuovo) => {
-    setUtenti(prev => [...prev, nuovo]);
+    const aggiornati = [...utenti, nuovo];
+
+    fetch("https://manutenzione-backend.onrender.com/utenti", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(aggiornati)
+    })
+      .then(res => res.json())
+      .then(() => setUtenti(aggiornati))
+      .catch(err => {
+        console.error("Errore nel salvataggio utenti:", err);
+      });
   };
 
   return (
     <div className="app-container">
       {location.pathname !== "/login" && user && <Header />}
-      {user && <BackupAutomatico />} {/* ✅ COMPONENTE BACKUP */}
+      {user && <BackupAutomatico />}
       <div className="content-wrapper">
         {location.pathname !== "/login" && user && <Sidebar />}
         <div className="main-content">

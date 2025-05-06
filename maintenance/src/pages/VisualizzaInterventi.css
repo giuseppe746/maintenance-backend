@@ -1,0 +1,32 @@
+.visualizza-container {
+    padding: 20px;
+  }
+  
+  .categoria-blocco {
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+  }
+  
+  .categoria-blocco h3 {
+    margin-bottom: 10px;
+    color: #444;
+  }
+  
+  .intervento-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #ccc;
+    font-size: 16px;
+  }
+  
+  .intervento-titolo {
+    font-weight: 500;
+  }
+  
+  .intervento-stato {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  

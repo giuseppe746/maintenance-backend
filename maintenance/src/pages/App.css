@@ -1,0 +1,75 @@
+:root {
+  --background-color: #121212;
+  --text-color: #e0e0e0;
+  --primary-color: #2196F3;
+  --secondary-color: #333;
+  --header-sidebar-bg: #1f1f1f;
+  --table-bg-color: #1c1c1c;
+  --table-border-color: #333;
+}
+
+body, html {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  display: flex;
+}
+
+.content-wrapper {
+  display: flex;
+  flex: 1;
+}
+
+.main-content {
+  padding: 20px;
+  flex-grow: 1;
+}
+
+/* Stile Sidebar e Header */
+header, .sidebar {
+  background-color: var(--header-sidebar-bg);
+}
+
+.sidebar a, header a {
+  color: var(--text-color);
+}
+
+.sidebar a:hover, header a:hover {
+  color: var(--primary-color);
+}
+
+/* Tabelle */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--table-bg-color);
+}
+
+th, td {
+  border: 1px solid var(--table-border-color);
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: var(--secondary-color);
+}
+
+/* Pulsanti */
+button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  opacity: 0.8;
+}

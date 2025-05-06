@@ -1,0 +1,9 @@
+/* Footer.css */
+.footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin: 10px;
+  font-size: 0.9em;
+  color: #666;
+}

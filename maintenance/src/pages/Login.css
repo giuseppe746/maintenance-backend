@@ -1,0 +1,48 @@
+/* Login.css */
+.login-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+  flex-wrap: wrap; /* Assicurati che la pagina si adatti in base alla larghezza dello schermo */
+}
+
+.login-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 300px; /* Impostato una larghezza fissa per il modulo */
+  margin-right: 20px; /* Aggiunto margine per separare dal logo */
+}
+
+.logo-preview {
+  max-height: 480px;  /* Logo più grande */
+  margin-left: 20px;
+  display: block;
+  margin-top: 20px;
+  max-width: 100%; /* Assicurati che il logo non vada oltre il contenitore */
+}
+
+input[type="text"], input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 12px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
